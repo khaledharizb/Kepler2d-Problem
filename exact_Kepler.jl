@@ -5,9 +5,9 @@ tol=1.e-12; q₀ = z[1:2] ; p₀ = z[3:4] ; r₀ = norm(q₀);     H₀ = 0.5 * 
 g(E) = ECC * sin(E) + h / w ; # eq. (2.2.6)
   x₀ = w * h;  
    E = FixIter(g,x₀,tol);
-   q = [a * cos(E) - a * ECC ; a * sqrt(1-ECC^2) * sin(E)]; 
-dsdt = w * (1 - ECC * cos(E));    
-   p = [- sin(E) / dsdt; a * sqrt(1-ECC^2) * cos(E) / dsdt];
+   q = [a * cos(E) - a * ECC ; a * sqrt(1-ECC^2) * sin(E)]; # page 27 (X,Y) = (a * cos(E) - a * ECC ; a * sqrt(1-ECC^2) * sin(E))
+dtdE = w * (1 - ECC * cos(E));   # line before eq. (2.2.6)
+   p = [- a * sin(E) / dtdE ; a * sqrt(1-ECC^2) * cos(E) / dtdE]; # p = dq / dt
   return [q;p];
 end;
 
