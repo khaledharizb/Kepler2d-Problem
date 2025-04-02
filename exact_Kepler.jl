@@ -2,7 +2,7 @@
 
 function phiKepler(z,h) 
 tol=1.e-12; q₀ = z[1:2] ; p₀ = z[3:4] ; r₀ = norm(q₀);     H₀ = 0.5 * p₀' * p₀ - 1 / r₀ ; a = -1 / (2*H₀) ; w = a^(3/2) ;
-g(E) = ECC * sin(E) + h / w ;
+g(E) = ECC * sin(E) + h / w ; # eq. (2.2.6)
   x₀ = w * h;  
    E = FixIter(g,x₀,tol);
    q = [a * cos(E) - a * ECC ; a * sqrt(1-ECC^2) * sin(E)]; 
