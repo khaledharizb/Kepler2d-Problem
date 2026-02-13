@@ -1,10 +1,11 @@
-function FixIter(fun,u,tol) # Fixed point iteration used for implicit methods
-    while true
-        uold = u;
-        u = fun(u);
-        norm(uold - u) > tol || break;
+# Fixed point iteration for implicit methods
+function FixIter(fun, u; tol=sqrt(eps(Float64)), max_iter=1000) 
+    for _ in 1:max_iter
+        uold = u
+        u = fun(u)
+        norm(uold - u) ≤ tol && return u
     end
-    return u;
+error("FixIter failed to converge after $(max_iter) iterations (tol=$(tol)).")
 end
 
 function  ExpEuler(f,z,h) # first order explicit Euler (not symplectic)
