@@ -18,19 +18,30 @@ function  ImpEuler(f,z,h) # first order implicit Euler (not symplectic)
  return z + h * k;   
 end;
 
-function SympEuler(f1,f2,z,h) # Symplectic Euler fur non-separable Hamiltonian f1=f(q,p), f2=g(q,p)
+function SymEuler(f, z, h)
+    d = length(z);
+    m = Int(d / 2);
 
- n = Int(length(z)/2);
-q0 = z[1:n];
-p0 = z[n+1:end];
-        
-g(K) = p0 + h * f2(q0,K);
-  K0 = p0; 
-   K = FixIter(g,K0,1e-12);       
-   p = K;   
-   q = q0 + h * f1(q0,p);               
-  return [q; p]; 
-end;
+    znew = copy(z)
+
+    F = f(z);
+
+    # update q in-place in znew
+    @inbounds for i = 1:m
+        znew[i] += h * F[i]
+    end
+
+    # compute new vector field at mixed state
+    Ftemp = f(znew)
+
+    # update p
+    @inbounds for i = m+1:d
+        znew[i] += h * Ftemp[i]
+    end
+
+    return znew
+end
+
 
 
 function  RK4(f,z,h)  # 4th order RK method (not symplectic)
