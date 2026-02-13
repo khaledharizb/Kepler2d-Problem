@@ -68,11 +68,12 @@ g2(K) = p0 + (h/2) * (f2(Kmid,p0)+f2(Kmid,K));
   return  return [q; p]; 
 end;
 
-function Integrator(numFlow,z,steps)
-    Z = zeros(4,steps+1)
-    Z[:,1] = z
-    for k = 1:size(Z,2)-1
-        Z[:,k + 1] = numFlow(Z[:,k])
+function Integrator(numFlow,z0,steps)
+    d = length(z0);
+    z = zeros(d,steps+1)
+    z[:,1] = z0
+    for k = 1:steps
+        z[:,k + 1] = numFlow(z[:,k])
     end
-    return Z
+    return z
 end;
