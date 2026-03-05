@@ -14,11 +14,11 @@ end;
 
 function  ImpEuler(f,z,h) # first order implicit Euler (not symplectic)
  g(k) =  f(z + h * k);
- k = FixIter(g,f(z),1e-12);
+ k = FixIter(g, f(z); tol=1e-12);
  return z + h * k;   
 end;
 
-function SympEuler(f1,f2,z,h) # Symplectic Euler fur non-separable Hamiltonian f1=f(q,p), f2=g(q,p)
+function SympEuler(f1,f2,z,h) # Symplectic Euler for non-separable Hamiltonian f1=f(q,p), f2=g(q,p)
 
  n = Int(length(z)/2);
 q0 = z[1:n];
@@ -26,10 +26,29 @@ p0 = z[n+1:end];
         
 g(K) = p0 + h * f2(q0,K);
   K0 = p0; 
-   K = FixIter(g,K0,1e-12);       
+   K = FixIter(g, K0; tol=1e-12);       
    p = K;   
    q = q0 + h * f1(q0,p);               
   return [q; p]; 
+end;
+
+function SympEuler(f,z,h) # Symplectic Euler using a single vector field f(q,p) -> [qdot; pdot]
+ n = Int(length(z)/2)
+ q0 = z[1:n]
+ p0 = z[n+1:end]
+
+ function qdot(q,p)
+    return f(q,p)[1:n]
+ end
+
+ function pdot(q,p)
+    return f(q,p)[n+1:end]
+ end
+
+ g(K) = p0 + h * pdot(q0, K)
+ p = FixIter(g, p0; tol=1e-12)
+ q = q0 + h * qdot(q0, p)
+ return [q; p]
 end;
 
 
@@ -44,11 +63,11 @@ end;
 function  MidPoint(f,z,h) # Midpoint rule (symplectic)
  g(K) =   f( z + h * K / 2 );
    K0 = f(z)
-    K = FixIter(g,K0,1e-12);
+    K = FixIter(g, K0; tol=1e-12);
 return  z + h * K;
 end;
   
-function  StormerVerlet(f1,f2,z,h) # Stormer Verlet methods fur non-separable Hamiltonian f1=f(q,p), f2=g(q,p)
+function  StormerVerlet(f1,f2,z,h) # Stormer Verlet method for non-separable Hamiltonian f1=f(q,p), f2=g(q,p)
 
 n = Int(length(z)/2); 
 q0 = z[1:n];
@@ -57,15 +76,15 @@ p0 = z[n+1:end];
     
 g1(Km) = q0 + (h/2) * f1(Km,p0);
       Km0 = q0 + (h/2) * f1(q0,p0); 
-      Kmid = FixIter(g1,Km0,1e-14);
+      Kmid = FixIter(g1, Km0; tol=1e-14);
         
 g2(K) = p0 + (h/2) * (f2(Kmid,p0)+f2(Kmid,K));
         K0 = p0; 
-      Knew = FixIter(g2,K0,1e-14);
+      Knew = FixIter(g2, K0; tol=1e-14);
 
    p = Knew;    
    q = Kmid + (h/2) * f1(Kmid,Knew);
-  return  return [q; p]; 
+  return [q; p]; 
 end;
 
 function Integrator(numFlow,z,steps)
